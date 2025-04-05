@@ -1,0 +1,131 @@
+function obtenerTextoPaso2() {
+    let texto = document.querySelector('span[data-encore-id="text"]')?.innerText;
+    console.assert(texto.includes("Paso 2 de 3"), `Texto inesperado: ${texto}`);
+    return texto;
+}
+
+// Paso 10
+function escribirNombrePerfil(nombrePerfil) {
+    let inputNombre = document.querySelector('#displayName');
+    inputNombre?.focus();
+    llenarTexto(inputNombre, nombrePerfil)
+}
+
+// Paso 11-13
+function llenarFechaNacimiento(dia, mes, anio) {
+    let inputDia = document.querySelector('#day');
+    let selectMes = document.querySelector('#month');
+    let inputAnio = document.querySelector('#year');
+
+    if (inputDia && selectMes && inputAnio) {
+        console.log("dia2 =", dia, inputDia)
+
+        llenarTexto(inputDia, dia);
+        llenarTexto(inputAnio, anio);
+        inputDia.value = dia;
+        selectMes.value = mes; // ejemplo: "January", "February", etc.
+        inputAnio.value = anio;
+
+        //inputDia.dispatchEvent(new Event('input', { bubbles: true }));
+        selectMes.dispatchEvent(new Event('change', { target: selectMes, bubbles: true }));
+        //inputAnio.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+}
+
+function seleccionarGeneroMasculino() {
+    let radioMasculino = document.querySelector('#gender_option_male');
+    if (radioMasculino) {
+        seleccionarRadio(radioMasculino)
+        console.log("✅ Género masculino seleccionado");
+    } else {
+        console.error("❌ No se encontró el radio button masculino");
+    }
+}
+
+function llenarTexto(element, value) {
+    let lastValue = element.value;
+    element.value = value;
+    let event = new Event("input", {
+        target: element,
+        bubbles: true
+    });
+    // React 15
+    event.simulated = true;
+    // React 16
+    let tracker = element._valueTracker;
+    if (tracker) {
+        tracker.setValue(lastValue);
+    }
+    element.dispatchEvent(event);
+}
+
+function seleccionarRadio(element) {
+    let lastChecked = element.checked;
+    element.checked = true;
+
+    let event = new Event("input", {
+        bubbles: true,
+        cancelable: true
+    });
+
+    // React 15
+    event.simulated = true;
+
+    // React 16+
+    let tracker = element._valueTracker;
+    if (tracker) {
+        tracker.setValue(lastChecked);
+    }
+
+    element.dispatchEvent(event);
+
+    // También puede ser necesario disparar un evento 'change'
+    element.dispatchEvent(new Event("change", {
+        bubbles: true
+    }));
+}
+
+function seleccionarGeneroMasculino2() {
+    //const radioMasculino = document.querySelector('#gender_option_male');
+    const radioMasculino = document.querySelector('label[for="gender_option_male"]').click();
+
+    if (!radioMasculino) {
+        console.error("❌ No se encontró el input del género masculino");
+        return;
+    }
+
+    // Hacemos foco en el radio
+    radioMasculino.focus();
+
+    // Marcamos como checked
+    radioMasculino.checked = true;
+
+    // Click real para forzar interacción
+    radioMasculino.click();
+
+    // Forzar el value tracker como en inputs tipo texto
+    const lastValue = radioMasculino.checked;
+    const tracker = radioMasculino._valueTracker;
+    if (tracker) {
+        tracker.setValue(!lastValue); // cambia temporalmente el valor
+    }
+
+    // Disparamos eventos para que React detecte el cambio
+    radioMasculino.dispatchEvent(new Event("input", { bubbles: true }));
+    radioMasculino.dispatchEvent(new Event("change", { bubbles: true }));
+
+    console.log("✅ Género masculino seleccionado con todos los triggers");
+}
+
+
+async function validarPantallaPerfil(params) {
+    obtenerTextoPaso2()
+    await new Promise(r => setTimeout(r, 1000));
+    escribirNombrePerfil("Test diaejemplo")
+    await new Promise(r => setTimeout(r, 500));
+    llenarFechaNacimiento(22, 1, 2001)
+    await new Promise(r => setTimeout(r, 500));
+    //seleccionarGeneroMasculino2()
+    document.querySelector('label[for="gender_option_male"]').click();
+
+}
